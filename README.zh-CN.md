@@ -16,7 +16,7 @@
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version: 1.0.1](https://img.shields.io/badge/version-1.0.1-green.svg)](#roadmap)
+[![Version: 1.1.0](https://img.shields.io/badge/version-1.1.0-green.svg)](#roadmap)
 [![Runtime: Three.js](https://img.shields.io/badge/runtime-Three.js-000000.svg)](https://threejs.org/)
 [![Tooling: Python 3.9+ stdlib](https://img.shields.io/badge/tooling-Python%203.9%2B%20stdlib-3776AB.svg)](scripts)
 [![Sponsor: V2Fun](https://img.shields.io/badge/Sponsor-V2Fun-16161A.svg)](https://v2fun.ai/)
@@ -27,7 +27,9 @@
 ---
 ## Live demos
 
-本次不提供公开在线演示。可按下方流程生成并打开本地预览网页。
+| 示例 | 描述 | 查看 |
+| --- | --- | --- |
+| 角色动画 | 已有视频驱动角色动画与本地查看器 | [查看](example/index.html) |
 
 ## What it does
 
@@ -54,6 +56,8 @@ PMX 走原生 MMD 路线：直接提交 PMX 压缩包和 BVH，不转格式；�
 详见 [运镜偏好](references/camera-preferences.md)、[校正](references/alignment-and-layout.md) 和 [导出](references/grounding-and-export.md)。
 
 ## Quick start
+
+已内置国内服／海外服识别。远程操作前运行 `python3 scripts/v2fun.py region --project /path/to/project`；可通过 `V2FUN_REGION=cn` 或 `V2FUN_REGION=global` 明确选择。自动识别仅查询余额，报价和已有任务始终绑定对应服务器。详见[服务器选择](references/server-routing.md)。
 
 需要支持本地技能的 Codex、Python 3.9+、Node.js 和 WebGL 浏览器。初始化网页使用外部 Three.js 0.180.0 依赖，无需另装 setup 技能或 Blender。仓库为私有，安装需要有权限的 GitHub 账户。
 
@@ -96,7 +100,7 @@ Doctor 命令只做离线检查，不创建 API 任务。远程工作通过执�
 
 ## Roadmap
 
-### v1.0.1
+### v1.1.0
 
 - [x] 采用扁平 scripts/references 结构，整合 API 基建、预算及任务恢复。
 - [x] GLB／FBX 本地身体和手指重定向及默认模型。

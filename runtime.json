@@ -1,6 +1,6 @@
 {
   "name": "v2fun-animation",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "python_min": "3.9",
   "three_version": "0.180.0",
   "license": "MIT",
@@ -12,9 +12,14 @@
     "ground-repair",
     "animated-glb-export",
     "bvh-export",
-    "audio-video-recording"
+    "audio-video-recording",
+    "cn-global-server-routing"
   ],
   "api_retarget_inputs": "GLB executor; PMX ZIP route requires adaptation",
   "api_major": 1,
-  "setup_runtime_version": "1.0.0"
+  "setup_runtime_version": "1.1.0",
+  "regions": [
+    "cn",
+    "global"
+  ]
 }

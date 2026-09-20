@@ -7,7 +7,6 @@ from urllib.request import urlopen
 from runtime import SKILL
 from v2fun_client import Client, load_config
 from media_info import duration
-PRICING='https://doc.v2fun.art/zh/pricing'
 def digest(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 def parse_prices(raw):
     text=re.sub(r'<script\b[\s\S]*?</script>','',raw,flags=re.I)
@@ -32,14 +31,16 @@ def main():
     raw=model.read_bytes();doc=json.loads(raw[20:20+int.from_bytes(raw[12:16],'little')])
     if not doc.get('skins'):raise ValueError('Model has no skin. Rig it or use default.glb before quoting motion transfer.')
     retarget=a.retarget or ('api' if a.hands=='yes' else 'local');mode='pro' if a.hands=='yes' else 'turbo'
-    with urlopen(PRICING,timeout=30) as r:pricing=r.read().decode()
-    rates=parse_prices(pricing);balance=Client(load_config(a.project,a.config)).request('/balance')['balance']
+    client=Client(load_config(a.project,a.config))
+    pricing_url=client.binding()['docs_base_url']+'/zh/pricing'
+    with urlopen(pricing_url,timeout=30) as r:pricing=r.read().decode()
+    rates=parse_prices(pricing);balance=client.balance
     if not isinstance(balance,(int,float)) or not math.isfinite(balance):raise ValueError('Unknown balance schema; do not infer credits')
     amount=estimate(seconds,rates[mode]);extra=rates['retarget'] if retarget=='api' else 0
     services=[{'service':'Video motion capture','endpoint':'/videos/motion_detections','model':mode,'calls':1,'seconds':seconds,'estimated_credits':amount['proportional'],'budget_credits':amount['budget']}]
     if retarget=='api':services.append({'service':'Animation retargeting','endpoint':'/motions/animations','calls':1,'estimated_credits':extra,'budget_credits':extra})
     budget=amount['budget']+extra
-    plan={'schema':1,'created_at':time.time(),'pricing_source':PRICING,'pricing_sha256':hashlib.sha256(pricing.encode()).hexdigest(),'rates':rates,'rounding_note':'Proportional estimate; reserve complete 3-second units because server rounding is not specified. Actual billing may differ.','video':str(video),'video_sha256':digest(video),'model_file':str(model),'model_sha256':digest(model),'using_default':a.model is None,'hands':a.hands=='yes','capture_model':mode,'retarget':retarget,'start':a.start,'duration':seconds,'video_duration':total,'services':services,'estimated_credits':amount['proportional']+extra,'budget_credits':budget,'balance_before':balance,'estimated_balance_after':balance-amount['proportional']-extra,'budget_balance_after':balance-budget,'sufficient_balance':balance>=budget}
+    plan={'schema':2,'server':client.binding(),'created_at':time.time(),'pricing_source':pricing_url,'pricing_sha256':hashlib.sha256(pricing.encode()).hexdigest(),'rates':rates,'rounding_note':'Proportional estimate; reserve complete 3-second units because server rounding is not specified. Actual billing may differ.','video':str(video),'video_sha256':digest(video),'model_file':str(model),'model_sha256':digest(model),'using_default':a.model is None,'hands':a.hands=='yes','capture_model':mode,'retarget':retarget,'start':a.start,'duration':seconds,'video_duration':total,'services':services,'estimated_credits':amount['proportional']+extra,'budget_credits':budget,'balance_before':balance,'estimated_balance_after':balance-amount['proportional']-extra,'budget_balance_after':balance-budget,'sufficient_balance':balance>=budget}
     out=a.project.resolve()/'api-jobs/animation-plan.json';out.parent.mkdir(parents=True,exist_ok=True);out.write_text(json.dumps(plan,indent=2))
-    print(json.dumps({'plan':str(out),'quote_sha256':digest(out),'services':services,'estimate':plan['estimated_credits'],'budget':budget,'balance':balance,'estimated_remaining':plan['estimated_balance_after'],'budget_remaining':plan['budget_balance_after'],'sufficient_balance':plan['sufficient_balance'],'pricing_source':PRICING},indent=2))
+    print(json.dumps({'region':client.region,'base_url':client.base,'plan':str(out),'quote_sha256':digest(out),'services':services,'estimate':plan['estimated_credits'],'budget':budget,'balance':balance,'estimated_remaining':plan['estimated_balance_after'],'budget_remaining':plan['budget_balance_after'],'sufficient_balance':plan['sufficient_balance'],'pricing_source':pricing_url},indent=2))
 if __name__=='__main__':main()

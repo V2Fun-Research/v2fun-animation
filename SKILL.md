@@ -77,3 +77,7 @@ If pricing or balance cannot be obtained, report it as unavailable, never zero o
 7. For a requested hosted webpage, use available Sites building/hosting skills and preserve an existing Site's audience; do not ship an old hosting manifest. If hosting is unavailable, deliver a runnable local viewer and explain the limitation. Return the actual verified URL, not a predicted one.
 
 After API completion, query current balance again. Report actual billing only from a bill/usage record; an account balance delta can include concurrent activity. Never publish a previous user's video, BVH, account details, task IDs or signed asset URLs as template content.
+
+## Server selection
+
+Before remote calls, follow [CN/global routing](references/server-routing.md). Run scripts/v2fun.py region with the task project; normalize Bearer input, verify the selected server, and report its name and balance. Never infer the server from language or key appearance. Bind all quotes, task records and recovery to that server; a paid API failure never authorizes cross-server failover. Missing credentials do not block local work.

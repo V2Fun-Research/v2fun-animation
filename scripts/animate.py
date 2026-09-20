@@ -21,11 +21,13 @@ def main():
     project=a.project.resolve();jobs=project/'api-jobs';plan_path=jobs/'animation-plan.json';plan=json.loads(plan_path.read_text());record=jobs/('animation-'+a.stage+'.json');endpoint='/videos/motion_detections' if a.stage=='capture' else '/motions/animations'
     if a.stage=='retarget' and plan['retarget']!='api':raise ValueError('Plan specifies local retargeting; no API call is needed')
     if not (project/'dist/animation.json').is_file():raise ValueError('Run scaffold.py before executing the plan')
-    client=Client(load_config(project,a.config));lock=jobs/'pipeline.lock'
+    if not plan.get('server'):raise ValueError('Legacy quote lacks server binding; refresh an unsubmitted quote or explicitly migrate original task and quote')
+    client=Client(load_config(project,a.config),binding=plan['server']);lock=jobs/'pipeline.lock'
     with lock.open('x') as f:f.write('v2fun-animation '+a.stage)
     try:
         if record.exists():
             state=json.loads(record.read_text())
+            if state.get('server')!=plan['server']:raise ValueError('Task server differs from quote; restore original binding')
             if not state.get('task_uuid'):raise ValueError('Submission outcome unknown; do not repeat POST. Resolve the recorded attempt first.')
             if state.get('plan_sha256')!=sha(plan_path):raise ValueError('Plan changed; restore the original plan to recover this task')
             if state.get('status')=='COMPLETED':
@@ -44,6 +46,7 @@ def main():
                 payload={'model':plan['capture_model'],'input_video':data_url(plan['video'],mime),'start_time_seconds':plan['start'],'duration_seconds':plan['duration'],'options':{'block':False}}
             else:
                 capture=json.loads((jobs/'animation-capture.json').read_text())
+                if capture.get('server')!=plan['server']:raise ValueError('Capture server differs from retarget server')
                 if capture['status']!='COMPLETED':raise ValueError('Capture must complete before retargeting')
                 motions=capture['metadata']['motions']
                 if not 0<=a.motion_index<len(motions):raise ValueError('Select a valid tracked person')
@@ -51,7 +54,7 @@ def main():
             ledger=jobs/'budget-ledger.json'
             if not ledger.exists():save(ledger,{'max_new_tasks':len(plan['services']),'stage_limits':{'motion':1,'animation':int(plan['retarget']=='api')},'authorization':a.authorization,'authorization_history':[],'entries':{}})
             budget=Budget(project);budget.reserve(record,'motion' if a.stage=='capture' else 'animation')
-            state={'status':'SUBMITTING','endpoint':endpoint,'plan_sha256':sha(plan_path),'authorization':a.authorization,'motion_index':a.motion_index,'request_parameters':{k:v for k,v in payload.items() if not k.startswith('input_')},'balance_before':balance};save(record,state)
+            state={'server':client.binding(),'status':'SUBMITTING','endpoint':endpoint,'plan_sha256':sha(plan_path),'authorization':a.authorization,'motion_index':a.motion_index,'request_parameters':{k:v for k,v in payload.items() if not k.startswith('input_')},'balance_before':balance};save(record,state)
             try:result=client.request(endpoint,payload)
             except Exception:
                 state['submission_outcome']='uncertain';save(record,state);budget.outcome(record,'uncertain');raise RuntimeError('Submission outcome unknown; task was not resubmitted') from None

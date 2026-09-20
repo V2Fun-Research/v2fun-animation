@@ -16,7 +16,7 @@ Capture motion, retarget a rigged character, refine the stage, and record with s
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version: 1.0.1](https://img.shields.io/badge/version-1.0.1-green.svg)](#roadmap)
+[![Version: 1.1.0](https://img.shields.io/badge/version-1.1.0-green.svg)](#roadmap)
 [![Runtime: Three.js](https://img.shields.io/badge/runtime-Three.js-000000.svg)](https://threejs.org/)
 [![Tooling: Python 3.9+ stdlib](https://img.shields.io/badge/tooling-Python%203.9%2B%20stdlib-3776AB.svg)](scripts)
 [![Sponsor: V2Fun](https://img.shields.io/badge/Sponsor-V2Fun-16161A.svg)](https://v2fun.ai/)
@@ -27,7 +27,9 @@ Capture motion, retarget a rigged character, refine the stage, and record with s
 ---
 ## Live demos
 
-No public hosted demonstration is included. Generate and open a local viewer using the workflow below.
+| Demo | Description | View |
+| --- | --- | --- |
+| Character animation | Existing video-derived character animation and local viewer | [View](example/index.html) |
 
 ## What it does
 
@@ -54,6 +56,8 @@ PMX uses the native MMD route: submit the PMX archive plus BVH without conversio
 See [camera preferences](references/camera-preferences.md), [alignment](references/alignment-and-layout.md) and [exports](references/grounding-and-export.md).
 
 ## Quick start
+
+CN/global routing is included. Before remote work, run `python3 scripts/v2fun.py region --project /path/to/project`; use `V2FUN_REGION=cn` or `V2FUN_REGION=global` to select explicitly. Automatic detection uses read-only balance requests. Quotes and saved tasks stay bound to the selected server. See [server routing](references/server-routing.md).
 
 Requires Codex with local skills, Python 3.9+, Node.js and a WebGL browser. Three.js 0.180.0 is an external dependency for scaffolded viewers. No separate setup skill or Blender is required. This repository is private: installation requires an authorized GitHub account.
 
@@ -96,7 +100,7 @@ Validate exports by reloading them. BVH contains no mesh or audio; GLB does not 
 
 ## Roadmap
 
-### v1.0.1
+### v1.1.0
 
 - [x] Flat scripts/references layout with integrated API setup, budgets and task recovery.
 - [x] GLB/FBX local body/finger retargeting and model fallback.
