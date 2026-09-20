@@ -1,0 +1,17 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {pathToFileURL} from 'node:url';
+const [input,output,threeDir]=process.argv.slice(2);
+if(!input||!output||!threeDir)throw Error('Usage: node prepare-default.mjs INPUT.glb OUTPUT.glb THREE_PACKAGE_DIR');
+if(path.resolve(input)===path.resolve(output))throw Error('Preserve the original; use a different output path.');
+const {GLTFLoader}=await import(pathToFileURL(path.resolve(threeDir,'examples/jsm/loaders/GLTFLoader.js')));
+const {GLTFExporter}=await import(pathToFileURL(path.resolve(threeDir,'examples/jsm/exporters/GLTFExporter.js')));
+globalThis.FileReader=class{readAsArrayBuffer(blob){blob.arrayBuffer().then(b=>{this.result=b;this.onloadend?.()})}readAsDataURL(blob){blob.arrayBuffer().then(b=>{this.result=`data:${blob.type};base64,${Buffer.from(b).toString('base64')}`;this.onloadend?.()})}};
+const data=await fs.readFile(input);const json=JSON.parse(data.subarray(20,20+data.readUInt32LE(12)).toString());if(json.images?.length)throw Error('This helper targets the untextured default. Use a browser GLTFExporter for textured models.');
+const loader=new GLTFLoader();const gltf=await loader.parseAsync(data.buffer.slice(data.byteOffset,data.byteOffset+data.byteLength),'');let skins=0,bones=0;
+gltf.scene.traverse(o=>{o.animations=[];if(o.isSkinnedMesh){o.skeleton.pose();skins++}if(o.isBone)bones++});gltf.scene.updateMatrixWorld(true);
+if(!skins||!bones)throw Error('No rigged mesh found');
+const binary=await new GLTFExporter().parseAsync(gltf.scene,{binary:true,animations:[],onlyVisible:false});await fs.mkdir(path.dirname(path.resolve(output)),{recursive:true});await fs.writeFile(output,Buffer.from(binary));
+const check=Buffer.from(binary),doc=JSON.parse(check.subarray(20,20+check.readUInt32LE(12)).toString());if(doc.animations?.length)throw Error('Unexpected exported animation');
+const loaded=await loader.parseAsync(binary,'');let reopened=0;loaded.scene.traverse(o=>{if(o.isSkinnedMesh)reopened++});if(reopened!==skins)throw Error('Skinned mesh count changed');
+console.log(JSON.stringify({output,animations:0,skinnedMeshes:skins,bones,bytes:check.length,restPoseRestored:true}));

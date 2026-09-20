@@ -1,0 +1,10 @@
+{
+  "file": "default.glb",
+  "sha256": "5849d0c7634f8721ebf59808df83b66412505747fa3ef9fe8716deba35a51a49",
+  "animations": 0,
+  "skinned_meshes": 2,
+  "bones": 65,
+  "bind_pose_restored": true,
+  "preparation": "Three.js GLTFLoader + Skeleton.pose + GLTFExporter",
+  "three_version": "0.180.0"
+}

@@ -1,0 +1,20 @@
+{
+  "name": "v2fun-animation",
+  "version": "1.0.1",
+  "python_min": "3.9",
+  "three_version": "0.180.0",
+  "license": "MIT",
+  "capabilities": [
+    "video-motion-capture",
+    "local-glb-fbx-retarget",
+    "finger-mapping",
+    "custom-camera-brief",
+    "ground-repair",
+    "animated-glb-export",
+    "bvh-export",
+    "audio-video-recording"
+  ],
+  "api_retarget_inputs": "GLB executor; PMX ZIP route requires adaptation",
+  "api_major": 1,
+  "setup_runtime_version": "1.0.0"
+}

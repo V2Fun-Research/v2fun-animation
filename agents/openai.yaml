@@ -1,0 +1,4 @@
+interface:
+  display_name: "V2Fun Animation"
+  short_description: "Video motion capture, cinematic cameras and recording"
+  default_prompt: "Use $v2fun-animation to animate a model from my video, ask whether I want hand capture and offer a simple camera preference, show API costs and balance, and create an English viewer with local video recording."

@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+node_modules/
+api-jobs/
+.v2fun/
+.env
+.DS_Store
